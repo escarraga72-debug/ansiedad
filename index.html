@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#fbeee3"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<title>Ansiedad</title><style>:root{--tx:#5a4636;--tx2:#8a7462;--panel:rgba(255,252,247,.92);--panel2:rgba(255,255,255,.7);--acento:#f08a73;--acento2:#e2705a;--ok:#6fcf97;--sombra:0 8px 24px rgba(90,60,40,.18)}
+body.oscuro{--tx:#f1ebff;--tx2:#bdb3dc;--panel:rgba(38,34,74,.94);--panel2:rgba(255,255,255,.1);--acento:#ff9d86;--sombra:0 8px 24px rgba(0,0,0,.4)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{margin:0;height:100%;overflow:hidden;background:#f6efe4;color:var(--tx);font:600 16px/1.35 "Nunito","Quicksand",ui-rounded,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+#app{position:fixed;inset:0}
+canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border-radius:22px;padding:8px 14px;box-shadow:var(--sombra);font-weight:800}
+.pill svg{width:20px;height:20px}
+#hud{position:absolute;inset:0;pointer-events:none;display:none}
+#hud.on{display:block}
+#top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#top .izq,#top .der{display:flex;gap:8px;align-items:center;pointer-events:auto}
+.circ{width:46px;height:46px;border-radius:50%;background:var(--panel);box-shadow:var(--sombra);display:grid;place-items:center;pointer-events:auto;transition:transform .12s}
+.circ:active,.btn:active,.cuadro:active{transform:scale(.93)}
+.circ svg{width:24px;height:24px;stroke:var(--tx);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#nivel-txt{font-size:18px}
+#nivel-txt small{display:block;font-size:11px;color:var(--tx2);font-weight:700;margin-top:-2px}
+#bot{position:absolute;left:0;right:0;bottom:0;padding:0 12px calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;justify-content:center;gap:14px;pointer-events:none}
+.acc{position:relative;width:70px;pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:800;color:var(--tx)}
+.acc .ic{width:58px;height:58px;border-radius:20px;background:var(--panel);box-shadow:var(--sombra);display:grid;place-items:center;transition:transform .12s}
+.acc:active .ic{transform:scale(.92)}
+.acc .ic svg{width:28px;height:28px;stroke:var(--tx);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.acc .ins{position:absolute;top:-6px;right:2px;min-width:24px;height:24px;border-radius:12px;background:var(--acento);color:#fff;font-size:12px;display:grid;place-items:center;padding:0 6px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.acc .ins.g{background:#9bd8b0}
+.acc[disabled]{opacity:.45}
+.pant{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 20px calc(env(safe-area-inset-bottom,0px) + 20px)}
+.pant.on{display:flex}
+#p-home{justify-content:space-between;text-align:center}
+#p-home h1{margin:6vh 0 0;font-size:min(14vw,64px);font-weight:900;letter-spacing:.5px;line-height:1;text-shadow:0 3px 0 rgba(255,255,255,.6);color:var(--tx)}
+#p-home .sub{color:var(--tx2);margin-top:8px;font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(180deg,#f7a08a,var(--acento2));color:#fff;font-weight:900;border-radius:30px;padding:16px 34px;font-size:22px;box-shadow:0 6px 0 #c85a46,0 12px 24px rgba(200,90,70,.35);transition:transform .1s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c85a46}
+.btn.sec{background:var(--panel);color:var(--tx);box-shadow:var(--sombra);font-size:16px;padding:12px 22px}
+.btn.verde{background:linear-gradient(180deg,#8fe0ac,#5bbd80);box-shadow:0 6px 0 #3f9a63,0 12px 24px rgba(60,150,100,.3)}
+.btn.chico{font-size:16px;padding:10px 18px;border-radius:22px;box-shadow:0 4px 0 #c85a46}
+.btn.verde.chico{box-shadow:0 4px 0 #3f9a63}
+.btn[disabled]{opacity:.5;filter:grayscale(.4)}
+#home-medio{display:flex;flex-direction:column;align-items:center;gap:18px}
+#home-btns{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;margin-bottom:calc(env(safe-area-inset-bottom,0px) + 10px)}
+.cuadro{position:relative;width:78px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:800;transition:transform .12s}
+.cuadro .ic{width:62px;height:62px;border-radius:22px;background:var(--panel);box-shadow:var(--sombra);display:grid;place-items:center}
+.cuadro svg{width:30px;height:30px;stroke:var(--tx);fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.punto{position:absolute;top:-4px;right:8px;width:16px;height:16px;border-radius:50%;background:#ff6b6b;border:3px solid #fff}
+#modal-fondo{position:absolute;inset:0;background:rgba(40,30,25,.45);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#modal-fondo.on{display:flex}
+.modal{background:var(--panel);border-radius:28px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:22px 20px 20px;width:min(94vw,440px);max-height:88vh;overflow:auto;animation:sube .28s cubic-bezier(.2,1.2,.3,1)}
+@keyframes sube{from{transform:translateY(30px) scale(.94);opacity:0}to{transform:none;opacity:1}}
+.modal h2{margin:0 0 6px;text-align:center;font-size:26px;font-weight:900}
+.modal .cen{text-align:center}
+.modal p{margin:6px 0;color:var(--tx2)}
+.fila{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 4px;border-bottom:1px solid rgba(120,90,70,.12)}
+.fila:last-child{border-bottom:0}
+.fila .t{flex:1;text-align:left}.fila .t b{display:block;font-weight:900}.fila .t span{font-size:13px;color:var(--tx2);font-weight:600}
+.tabs{display:flex;gap:6px;background:var(--panel2);border-radius:20px;padding:4px;margin:8px 0 12px}
+.tabs button{flex:1;padding:9px 4px;border-radius:16px;font-weight:800;font-size:14px;color:var(--tx2)}
+.tabs button.on{background:var(--acento);color:#fff}
+.tarjeta{background:var(--panel2);border-radius:22px;padding:14px;margin:10px 0;display:flex;align-items:center;gap:12px}
+.tarjeta .ico{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:rgba(255,255,255,.6)}
+.tarjeta .t{flex:1}.tarjeta .t b{font-size:17px;font-weight:900}.tarjeta .t div{font-size:13px;color:var(--tx2)}
+.destacada{background:linear-gradient(135deg,#ffe3d6,#ffd0e2);color:#6a3a3a}
+.destacada .t div{color:#8a5a5a}
+.rejilla{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.item{position:relative;background:var(--panel2);border-radius:18px;padding:8px 6px 10px;text-align:center;font-size:12px;font-weight:800}
+.item canvas{width:100%;height:62px;display:block;margin-bottom:4px}
+.item.sel{outline:3px solid var(--acento)}
+.item button{margin-top:4px;background:var(--acento);color:#fff;border-radius:14px;padding:5px 10px;font-size:12px;font-weight:900}
+.item button.usar{background:#9bd8b0;color:#285b3d}
+.barra{height:10px;border-radius:6px;background:rgba(120,90,70,.15);overflow:hidden;margin-top:6px}
+.barra i{display:block;height:100%;background:linear-gradient(90deg,#8fe0ac,#5bbd80);border-radius:6px;transition:width .4s}
+.interr{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid rgba(120,90,70,.12)}
+.interr:last-of-type{border-bottom:0}
+.sw{width:54px;height:32px;border-radius:16px;background:rgba(120,90,70,.25);position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .2s}
+.sw.on{background:#6fcf97}.sw.on::after{transform:translateX(22px)}
+#toast{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 80px);transform:translateX(-50%) translateY(-20px);background:rgba(60,44,36,.9);color:#fff;border-radius:20px;padding:10px 18px;font-weight:700;opacity:0;pointer-events:none;transition:all .3s;max-width:88vw;text-align:center;z-index:30}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#p-jardin{justify-content:flex-start;padding:0}
+#p-jardin canvas{position:absolute;inset:0;width:100%;height:100%}
+#jar-top{position:relative;z-index:2;width:100%;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 0;display:flex;justify-content:space-between;align-items:center}
+#jar-bot{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 14px);background:linear-gradient(0deg,rgba(255,255,255,.55),rgba(255,255,255,0))}
+#jar-especies{display:flex;gap:10px;overflow-x:auto;padding:6px 4px}
+.esp{flex:0 0 76px;background:var(--panel);border-radius:18px;padding:6px 4px;text-align:center;font-size:11px;font-weight:800;box-shadow:var(--sombra)}
+#p-jardin .esp canvas{position:static;inset:auto;width:100%;height:54px;display:block}
+.esp.bloq{opacity:.55}
+#anuncio{position:absolute;inset:0;background:#2b2335;color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:40;text-align:center;padding:30px}
+#anuncio.on{display:flex}
+#anuncio .caja{width:min(80vw,320px);height:200px;border:2px dashed rgba(255,255,255,.4);border-radius:18px;display:grid;place-items:center;color:rgba(255,255,255,.7)}
+.conf-n{font-size:46px;font-weight:900;color:var(--acento)}
+.mono{display:flex;gap:8px;justify-content:center;align-items:center;font-weight:900;font-size:22px}
+@media (max-height:640px){#bot{gap:8px}.acc .ic{width:50px;height:50px}.acc{font-size:11px}}
+</style></head><body><div id="app">
+  <canvas id="c"></canvas>
+  <div id="hud">
+    <div id="top">
+      <div class="izq"><button class="circ" id="b-menu" aria-label="Menú"><svg viewBox="0 0 24 24"><path d="M4 12l8-7 8 7M6 10.5V20h12v-9.5"/></svg></button>
+        <div class="pill" id="nivel-txt">Nivel 1<small id="nivel-sub"></small></div></div>
+      <div class="der"><div class="pill" id="monedas-pill"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#f8d45a" stroke="#d9a92c" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="none" stroke="#d9a92c" stroke-width="1.6"/></svg><span id="monedas">0</span></div></div>
+    </div>
+    <div id="bot">
+      <button class="acc" id="b-deshacer"><span class="ic"><svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h10a6 6 0 010 12" transform="translate(0 -4)"/></svg></span><span>Deshacer</span><span class="ins g" id="n-deshacer">3</span></button>
+      <button class="acc" id="b-pista"><span class="ic"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/></svg></span><span>Pista</span><span class="ins" id="n-pista">2</span></button>
+      <button class="acc" id="b-maceta"><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 4h10M8 4l1 15h6l1-15M12 9v6M9 12h6"/></svg></span><span>Maceta</span><span class="ins" id="n-maceta">100</span></button>
+      <button class="acc" id="b-reiniciar"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 108-8H8M8 1L4 4l4 3"/></svg></span><span>Reiniciar</span></button>
+    </div>
+  </div>
+  <section class="pant" id="p-home">
+    <div><h1>Ansiedad</h1><div class="sub">Un respiro, una flor cada vez</div></div>
+    <div id="home-medio"><button class="btn" id="b-jugar">Jugar</button><div class="pill" id="home-nivel">Nivel 1</div></div>
+    <div id="home-btns">
+      <button class="cuadro" id="h-jardin"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 21v-9M12 12c0-4 3-6 6-6 0 4-2 6-6 6zM12 15c0-3-2-5-5-5 0 3 2 5 5 5z"/></svg></span>Jardín</button>
+      <button class="cuadro" id="h-tienda"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1.5 11a2 2 0 01-2 1.7H7.5a2 2 0 01-2-1.7L4 8zM8 8a4 4 0 018 0"/></svg></span>Tienda</button>
+      <button class="cuadro" id="h-misiones"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span>Misiones<i class="punto" id="pt-mis" style="display:none"></i></button>
+      <button class="cuadro" id="h-ajustes"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></span>Ajustes</button>
+    </div>
+  </section>
+  <section class="pant" id="p-jardin">
+    <canvas id="cj"></canvas>
+    <div id="jar-top"><button class="circ" id="j-volver" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="pill" id="j-info"></div><span style="width:46px"></span></div>
+    <div id="jar-bot"><div id="jar-especies"></div></div>
+  </section>
+  <div id="modal-fondo"><div class="modal" id="modal"></div></div>
+  <div id="anuncio"><div style="font-size:13px;opacity:.7">ANUNCIO (SIMULADO)</div><div class="caja">Aquí se mostraría un anuncio real</div><div id="anuncio-txt"></div><button class="btn sec" id="anuncio-cerrar" style="display:none">Cerrar</button></div>
+  <div id="toast"></div>
+</div>
+<script>// =====================================================================
+//  ANSIEDAD · puzle relajante de semillas y macetas
+//  Reglas de diseño: sin tiempo límite, sin derrotas bruscas, colores pastel, sonidos suaves.
+//  Prohibido: cajas de botín, azar de pago, cuentas atrás falsas, mensajes de culpa.
+// =====================================================================
+
+// ---------- Configuración (lo único que hay que tocar para publicar) ----------
+const CFG = {
+  version: '1.0.0',
+  pruebaPagos: true,        // true = las compras son SIMULADAS (no se cobra nada). Poner false al conectar la tienda real.
+  anunciosSimulados: true,  // true = los anuncios son un recuadro de prueba
+  interCada: 5,             // un anuncio (que se puede quitar) cada N niveles
+  interDesde: 8,            // …a partir del nivel
+  monedasInicio: 150,
+  cap: 4,                   // semillas por maceta
+  costePista: 30,
+  costeDeshacer: 20,
+  costeMaceta: 100,
+  deshacerGratis: 3,        // por nivel
+  precios: {                // textos que se muestran (los precios reales los pone Google Play)
+    monedas1: '0,99 €', monedas2: '2,99 €', monedas3: '5,99 €', monedas4: '12,99 €',
+    sinAnuncios: '3,99 €', jardinMas: '2,99 €/mes', pack: '1,99 €'
+  }
+};
+
+// ---------- Utilidades ----------
+const $ = (s, r = document) => r.querySelector(s);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = {
+  out: t => 1 - Math.pow(1 - t, 3),
+  inOut: t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  back: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  elastic: t => (t === 0 || t === 1 ? t : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1)
+};
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function mezcla(arr, r) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+const hoy = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const fmt = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+// ---------- Catálogo ----------
+// Semillas / flores: 10 colores bien distintos
+const COLORES = [
+  { n: 'Rosa', b: '#F7A8C4', l: '#FFD9E6', d: '#D9709A', g: '♥' },
+  { n: 'Amarillo', b: '#F8D45A', l: '#FFF0A8', d: '#D9A92C', g: '★' },
+  { n: 'Azul', b: '#6EA8F7', l: '#BCD8FF', d: '#4378C9', g: '◆' },
+  { n: 'Verde', b: '#5FCF8F', l: '#B5F0CC', d: '#37A068', g: '✚' },
+  { n: 'Lila', b: '#B08CF2', l: '#DCC9FF', d: '#7E5BC4', g: '☾' },
+  { n: 'Naranja', b: '#F7A15B', l: '#FFD3AE', d: '#D97A2C', g: '▲' },
+  { n: 'Turquesa', b: '#4FCFCF', l: '#B0F0F0', d: '#2AA0A6', g: '●' },
+  { n: 'Rojo', b: '#E5484D', l: '#FFAAAC', d: '#B52D3B', g: '■' },
+  { n: 'Lima', b: '#B9DB5C', l: '#E2F2A6', d: '#8BAE2E', g: '✿' },
+  { n: 'Marrón', b: '#A9745B', l: '#D9B5A2', d: '#7A4E3A', g: '♣' }
+];
+
+const TEMAS = {
+  amanecer: { n: 'Amanecer', precio: 0, osc: false, f: ['#FFF6E8', '#FCE4D6', '#F8D3D9'], blobs: ['#FFD9B8', '#FFC9D6', '#FFF1B8'], suelo: '#EBCBA8' },
+  jardin: { n: 'Jardín', precio: 200, osc: false, f: ['#F2FBEF', '#D8F2DD', '#BFE8D2'], blobs: ['#B8EBC4', '#E3F7B8', '#B8E9F0'], suelo: '#C7E3B5' },
+  atardecer: { n: 'Atardecer', precio: 350, osc: false, f: ['#FFEBDD', '#F9CFDB', '#D9C9F2'], blobs: ['#FFBFA8', '#F7B3D1', '#CDB8F5'], suelo: '#E6C2C8' },
+  noche: { n: 'Noche', precio: 500, osc: true, f: ['#2B2A5E', '#3A3578', '#58468F'], blobs: ['#5C5BC4', '#8A5BC4', '#3F7FC4'], suelo: '#4A3F7A' },
+  aurora: { n: 'Aurora', precio: -1, osc: true, f: ['#14304A', '#1F5A6B', '#3C8A7C'], blobs: ['#46D6B0', '#6A8CF0', '#B070F0'], suelo: '#2A5E66', plus: true }
+};
+const SEMILLAS = {
+  brillo: { n: 'Clásicas', precio: 0 },
+  gema: { n: 'Gemas', precio: 250 },
+  burbuja: { n: 'Burbujas', precio: 300 },
+  caramelo: { n: 'Caramelos', precio: 400 }
+};
+const MACETAS = {
+  terracota: { n: 'Terracota', precio: 0, rim: '#D98F6B', rim2: '#B8704E', band: '#E7A07C' },
+  azul: { n: 'Cerámica azul', precio: 250, rim: '#6C9BD6', rim2: '#4A78B5', band: '#8DB4E8' },
+  blanca: { n: 'Nórdica', precio: 300, rim: '#F1EDE6', rim2: '#CFC7BA', band: '#FFFFFF' },
+  madera: { n: 'Madera', precio: 350, rim: '#B9885C', rim2: '#8E6339', band: '#CFA073' }
+};
+// Especies de flor: se desbloquean con el progreso (una cada 8 niveles)
+const ESPECIES = [
+  { n: 'Margarita', f: 'margarita' }, { n: 'Rosa', f: 'rosa' }, { n: 'Tulipán', f: 'tulipan' }, { n: 'Girasol', f: 'girasol' },
+  { n: 'Loto', f: 'loto' }, { n: 'Amapola', f: 'amapola' }, { n: 'Cerezo', f: 'cerezo' }, { n: 'Hortensia', f: 'hortensia' },
+  { n: 'Orquídea', f: 'orquidea' }, { n: 'Estrella', f: 'estrella' }, { n: 'Lavanda', f: 'lavanda' }, { n: 'Flor de luna', f: 'luna' }
+];
+
+// ---------- Estado guardado en el móvil ----------
+const CLAVE = 'ansiedad_v1';
+const DEF = () => ({
+  nivel: 1, monedas: CFG.monedasInicio, pistas: 2, completados: 0, floresTotal: 0, racha: 0, ultimoRegalo: '',
+  sinAnuncios: false, subHasta: 0, packComprado: false,
+  tema: 'amanecer', semilla: 'brillo', maceta: 'terracota',
+  temasOk: { amanecer: 1 }, semillasOk: { brillo: 1 }, macetasOk: { terracota: 1 },
+  ajustes: { sonido: true, musica: true, vibracion: true, daltonico: false },
+  jardin: [], especies: 1, misiones: { dia: '', lista: [] }, pistasDia: '', pistasDiaUsadas: 0, intro: false
+});
+function cargar() {
+  try {
+    const j = JSON.parse(localStorage.getItem(CLAVE) || 'null');
+    if (j) { const d = DEF(); return Object.assign(d, j, { ajustes: Object.assign(d.ajustes, j.ajustes || {}) }); }
+  } catch (e) { /* sin almacenamiento */ }
+  return DEF();
+}
+let S = cargar();
+function guarda() { try { localStorage.setItem(CLAVE, JSON.stringify(S)); } catch (e) { /* nada */ } }
+const esPlus = () => S.subHasta > Date.now();
+const sinAnuncios = () => S.sinAnuncios || esPlus();
+function monedas(n) { S.monedas = Math.max(0, S.monedas + n); guarda(); const el = $('#monedas'); if (el) el.textContent = fmt(S.monedas); }
+
+// =====================================================================
+//  LÓGICA DEL PUZLE: macetas, movimientos, solucionador y generador de niveles
+//  Una maceta es una lista de semillas {c: color, v: visible}, de abajo (0) hacia arriba.
+// =====================================================================
+const CAP = CFG.cap;
+
+const completa = p => p.length === CAP && p.every(s => s.c === p[0].c);
+const homogenea = p => p.length > 0 && p.every(s => s.c === p[0].c);
+function racha(p) { let r = 0; for (let i = p.length - 1; i >= 0 && p[i].c === p[p.length - 1].c; i--) r++; return r; }
+function puedeMover(pots, a, b) {
+  if (a === b) return false;
+  const A = pots[a], B = pots[b];
+  if (!A.length || completa(A) || completa(B) || B.length >= CAP) return false;
+  return B.length === 0 || B[B.length - 1].c === A[A.length - 1].c;
+}
+function revela(p) { if (p.length) p[p.length - 1].v = true; }
+// Mueve la racha superior de A a B (todas las que quepan). Devuelve cuántas semillas se movieron.
+function mueve(pots, a, b) {
+  const A = pots[a], B = pots[b];
+  const k = Math.min(racha(A), CAP - B.length);
+  const mov = A.splice(A.length - k, k);
+  for (const s of mov) B.push(s);
+  revela(A); revela(B);
+  return k;
+}
+const resuelto = pots => pots.every(p => p.length === 0 || completa(p));
+function hayMovimientos(pots) {
+  for (let a = 0; a < pots.length; a++) for (let b = 0; b < pots.length; b++) if (movimientoUtil(pots, a, b)) return true;
+  return false;
+}
+// Movimiento que no es una tontería (no mueve una maceta uniforme a una vacía)
+function movimientoUtil(pots, a, b) {
+  if (!puedeMover(pots, a, b)) return false;
+  const A = pots[a], B = pots[b];
+  if (B.length === 0 && (homogenea(A))) return false;
+  return true;
+}
+const copia = pots => pots.map(p => p.map(s => ({ c: s.c, v: s.v })));
+
+// ---------- Solucionador (búsqueda voraz) — sirve para comprobar niveles y para dar pistas ----------
+function resolver(potsIn, maxNodos = 30000) {
+  const start = potsIn.map(p => p.map(s => s.c));
+  const clave = st => st.map(p => p.join('')).sort().join('|');
+  const meta = st => st.every(p => p.length === 0 || (p.length === CAP && p.every(x => x === p[0])));
+  const hval = st => {
+    let v = 0;
+    for (const p of st) {
+      if (!p.length) continue;
+      for (let i = 0; i < p.length; i++) for (let j = i + 1; j < p.length; j++) if (p[j] !== p[i]) v++;
+      if (p.length < CAP && p.every(x => x === p[0])) v += 0.3;
+    }
+    return v;
+  };
+  // montículo mínimo
+  const heap = [];
+  const push = n => { heap.push(n); let i = heap.length - 1; while (i > 0) { const q = (i - 1) >> 1; if (heap[q].f <= heap[i].f) break; [heap[q], heap[i]] = [heap[i], heap[q]]; i = q; } };
+  const pop = () => { const t = heap[0], l = heap.pop(); if (heap.length) { heap[0] = l; let i = 0; for (;;) { let m = i; const a = 2 * i + 1, b = a + 1; if (a < heap.length && heap[a].f < heap[m].f) m = a; if (b < heap.length && heap[b].f < heap[m].f) m = b; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return t; };
+  const visto = new Set([clave(start)]);
+  push({ st: start, f: hval(start), g: 0, padre: null, mov: null });
+  let nodos = 0;
+  while (heap.length && nodos < maxNodos) {
+    const n = pop(); nodos++;
+    if (meta(n.st)) { const r = []; for (let x = n; x.padre; x = x.padre) r.push(x.mov); return r.reverse(); }
+    const st = n.st, np = st.length;
+    for (let a = 0; a < np; a++) {
+      const A = st[a];
+      if (!A.length) continue;
+      const ca = A[A.length - 1];
+      if (A.length === CAP && A.every(x => x === ca)) continue;           // ya florecida
+      let r = 0; while (r < A.length && A[A.length - 1 - r] === ca) r++;
+      const homog = r === A.length;
+      for (let b = 0; b < np; b++) {
+        if (a === b) continue;
+        const B = st[b];
+        if (B.length >= CAP) continue;
+        if (B.length === 0) { if (homog) continue; }
+        else {
+          if (B[B.length - 1] !== ca) continue;
+          if (homog && B.every(x => x === ca) && (A.length > B.length || (A.length === B.length && a > b))) continue;   // evita simetrías
+        }
+        const k = Math.min(r, CAP - B.length);
+        const ns = st.map(p => p.slice());
+        const mv = ns[a].splice(ns[a].length - k, k);
+        for (const x of mv) ns[b].push(x);
+        const key = clave(ns);
+        if (visto.has(key)) continue;
+        visto.add(key);
+        push({ st: ns, f: hval(ns) + 0.05 * (n.g + 1), g: n.g + 1, padre: n, mov: { a, b } });
+      }
+    }
+  }
+  return null;
+}
+
+// ---------- Generador de niveles (siempre el mismo nivel para el mismo número) ----------
+function parametrosNivel(n) {
+  const relajado = n > 6 && n % 7 === 0;                                  // cada 7 niveles uno más tranquilo
+  let colores = n === 1 ? 2 : Math.min(10, 3 + Math.floor((n - 2) / 3));
+  if (relajado) colores = Math.max(3, colores - 2);
+  let vacias = n === 1 ? 1 : 2;
+  if (n >= 30 && n % 10 === 0 && !relajado) vacias = 1;                   // reto cada 10 niveles
+  const ocultas = n >= 12 && n % 4 === 0 && !relajado;                    // semillas «cerradas» que se abren al quedar arriba
+  return { n, colores, vacias, ocultas, relajado, reto: n >= 30 && n % 10 === 0 && !relajado };
+}
+function generaNivel(n) {
+  const prm = parametrosNivel(n);
+  const t0 = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  let pots = null, sol = null;
+  for (let intento = 0; intento < 60; intento++) {
+    if (prm.reto && intento === 20) prm.vacias = 2;                        // si con 1 maceta vacía no sale, se deja 2
+    const r = rng(n * 7919 + intento * 104729 + 13);
+    const sem = [];
+    for (let c = 0; c < prm.colores; c++) for (let i = 0; i < CAP; i++) sem.push(c);
+    mezcla(sem, r);
+    pots = [];
+    for (let p = 0; p < prm.colores; p++) pots.push(sem.slice(p * CAP, (p + 1) * CAP).map(c => ({ c, v: true })));
+    for (let e = 0; e < prm.vacias; e++) pots.push([]);
+    if (pots.some(p => completa(p))) continue;                            // nada de macetas ya hechas
+    sol = resolver(pots, 20000);
+    if (sol) break;
+    if (intento >= 20 && (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0 > 1800) break;
+  }
+  if (prm.ocultas) for (const p of pots) for (let i = 0; i < p.length - 1; i++) p[i].v = false;
+  prm.reto = prm.reto && prm.vacias === 1;
+  return { prm, pots, pasos: sol ? sol.length : 0, resoluble: !!sol };
+}
+
+// =====================================================================
+//  SONIDO: todo se genera con WebAudio (sin archivos). Notas suaves de escala pentatónica.
+// =====================================================================
+const PENTA = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.5];
+const Aud = {
+  ctx: null, master: null, musGain: null, musOn: false, timer: null, osc: [],
+  init() {
+    if (this.ctx) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain(); this.master.gain.value = 0.85; this.master.connect(this.ctx.destination);
+      this.musGain = this.ctx.createGain(); this.musGain.gain.value = 0; this.musGain.connect(this.master);
+    } catch (e) { this.ctx = null; }
+  },
+  reanuda() { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {}); },
+  nota(f, dur = 0.28, tipo = 'sine', vol = 0.16, cuando = 0, destino = null, glide = 0) {
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime + cuando;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = tipo; o.frequency.setValueAtTime(f, t);
+    if (glide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f * glide), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(destino || this.master);
+    o.start(t); o.stop(t + dur + 0.05);
+  },
+  campana(f, cuando = 0, vol = 0.12, dur = 0.9, destino = null) {            // sonido de campanilla suave
+    this.nota(f, dur, 'sine', vol, cuando, destino);
+    this.nota(f * 2.01, dur * 0.6, 'sine', vol * 0.35, cuando, destino);
+    this.nota(f * 3.99, dur * 0.25, 'sine', vol * 0.12, cuando, destino);
+  },
+  ok() { return S.ajustes.sonido && this.ctx; },
+  elige() { if (!this.ok()) return; this.nota(620, 0.12, 'triangle', 0.10, 0, null, 1.25); },
+  suelta() { if (!this.ok()) return; this.nota(420, 0.1, 'triangle', 0.08, 0, null, 0.8); },
+  pon(n = 0) { if (!this.ok()) return; this.campana(PENTA[n % PENTA.length], 0, 0.11, 0.5); },
+  error() { if (!this.ok()) return; this.nota(170, 0.16, 'sine', 0.12, 0, null, 0.7); },
+  boton() { if (!this.ok()) return; this.nota(700, 0.06, 'triangle', 0.06); },
+  flor() {
+    if (!this.ok()) return;
+    [0, 2, 4, 5, 7].forEach((k, i) => this.campana(PENTA[k], i * 0.085, 0.12, 1.1));
+    this.nota(PENTA[0] / 2, 1.2, 'sine', 0.08, 0);
+  },
+  moneda() { if (!this.ok()) return; this.nota(1318, 0.09, 'triangle', 0.08); this.nota(1760, 0.16, 'triangle', 0.08, 0.07); },
+  gana() {
+    if (!this.ok()) return;
+    [0, 2, 4, 7, 4, 7, 5].forEach((k, i) => this.campana(PENTA[k] * (i > 3 ? 2 : 1), i * 0.12, 0.13, 1.3));
+    this.nota(261.6, 2, 'sine', 0.09); this.nota(329.6, 2, 'sine', 0.07); this.nota(392, 2, 'sine', 0.07);
+  },
+  // Música ambiente: acorde suave que respira + campanillas sueltas
+  musica(on) {
+    this.musOn = on;
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    if (on && S.ajustes.musica) {
+      if (!this.osc.length) {
+        [130.8, 196.0, 261.6, 329.6].forEach((f, i) => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain(), l = this.ctx.createOscillator(), lg = this.ctx.createGain();
+          o.type = 'sine'; o.frequency.value = f * (1 + (i - 1.5) * 0.0015);
+          g.gain.value = 0.05 / (1 + i * 0.4);
+          l.frequency.value = 0.07 + i * 0.03; lg.gain.value = 0.02; l.connect(lg); lg.connect(g.gain);
+          o.connect(g); g.connect(this.musGain); o.start(); l.start(); this.osc.push(o, l);
+        });
+      }
+      this.musGain.gain.cancelScheduledValues(t); this.musGain.gain.linearRampToValueAtTime(1, t + 2.5);
+      if (!this.timer) this.timer = setInterval(() => {
+        if (!this.musOn || !S.ajustes.musica || !S.ajustes.sonido || document.hidden) return;
+        if (Math.random() < 0.7) this.campana(PENTA[Math.floor(Math.random() * 6)] * (Math.random() < 0.3 ? 0.5 : 1), 0, 0.045, 2.2, this.musGain);
+      }, 3200);
+    } else {
+      this.musGain.gain.cancelScheduledValues(t); this.musGain.gain.linearRampToValueAtTime(0, t + 1.2);
+    }
+  }
+};
+function vibra(p) { if (S.ajustes.vibracion && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) { /* nada */ } } }
+
+// =====================================================================
+//  DIBUJO: semillas, macetas, flores y fondos (todo con canvas 2D, sin imágenes)
+// =====================================================================
+const TAU = Math.PI * 2;
+function rr(ctx, x, y, w, h, r) {
+  const [a, b, c, d] = Array.isArray(r) ? r : [r, r, r, r];
+  ctx.beginPath();
+  ctx.moveTo(x + a, y); ctx.lineTo(x + w - b, y); ctx.quadraticCurveTo(x + w, y, x + w, y + b);
+  ctx.lineTo(x + w, y + h - c); ctx.quadraticCurveTo(x + w, y + h, x + w - c, y + h);
+  ctx.lineTo(x + d, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - d);
+  ctx.lineTo(x, y + a); ctx.quadraticCurveTo(x, y, x + a, y); ctx.closePath();
+}
+
+// ---------- Semillas ----------
+function dibujaSemilla(ctx, x, y, d, ci, estilo, o = {}) {
+  const C = COLORES[ci], r = d / 2;
+  ctx.save();
+  ctx.translate(x, y);
+  if (o.sx || o.sy) ctx.scale(o.sx || 1, o.sy || 1);
+  ctx.globalAlpha = o.alpha == null ? 1 : o.alpha;
+  if (o.oculta) {                                            // semilla cerrada: se abre al quedar arriba
+    const g = ctx.createRadialGradient(-r * .3, -r * .4, r * .1, 0, 0, r * 1.05);
+    g.addColorStop(0, '#d9cfe8'); g.addColorStop(.6, '#a595c0'); g.addColorStop(1, '#7f6fa0');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+    ctx.strokeStyle = 'rgba(60,40,90,.25)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.font = `900 ${r * 1.0}px system-ui,sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('?', 0, r * .06);
+    ctx.restore(); return;
+  }
+  if (estilo === 'gema') {
+    const R = r * 1.04, pts = [];
+    for (let i = 0; i < 6; i++) { const a = TAU / 6 * i + TAU / 12; pts.push([Math.cos(a) * R, Math.sin(a) * R]); }
+    const g = ctx.createLinearGradient(-r, -r, r, r); g.addColorStop(0, C.l); g.addColorStop(.5, C.b); g.addColorStop(1, C.d);
+    ctx.fillStyle = g; ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fill();
+    for (let i = 0; i < 6; i++) {                           // facetas
+      const p = pts[i], q = pts[(i + 1) % 6];
+      ctx.fillStyle = i % 2 ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.10)';
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.moveTo(-R * .5, -R * .2); ctx.lineTo(-R * .1, -R * .75); ctx.lineTo(R * .2, -R * .45); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.stroke();
+  } else if (estilo === 'burbuja') {
+    const g = ctx.createRadialGradient(0, 0, r * .2, 0, 0, r);
+    g.addColorStop(0, C.b + '33'); g.addColorStop(.8, C.b + '88'); g.addColorStop(1, C.b + 'ee');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+    ctx.strokeStyle = C.d; ctx.globalAlpha *= .8; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = o.alpha == null ? 1 : o.alpha;
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = r * .12; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(0, 0, r * .72, Math.PI * 1.05, Math.PI * 1.45); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.beginPath(); ctx.arc(r * .42, r * .38, r * .08, 0, TAU); ctx.fill();
+  } else {                                                   // clásicas y caramelos
+    const g = ctx.createRadialGradient(-r * .35, -r * .4, r * .1, 0, 0, r * 1.05);
+    g.addColorStop(0, C.l); g.addColorStop(.55, C.b); g.addColorStop(1, C.d);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+    if (estilo === 'caramelo') {
+      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.clip();
+      ctx.strokeStyle = 'rgba(255,255,255,.38)'; ctx.lineWidth = r * .24;
+      for (let k = -3; k <= 3; k++) { ctx.beginPath(); ctx.moveTo(-r * 2 + k * r * .55, r * 1.4); ctx.lineTo(r * .2 + k * r * .55, -r * 1.6); ctx.stroke(); }
+      ctx.restore();
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,.10)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.ellipse(-r * .32, -r * .45, r * .32, r * .17, -.6, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(r * .4, r * .45, r * .09, 0, TAU); ctx.fill();
+  }
+  if (S.ajustes.daltonico) {
+    ctx.fillStyle = 'rgba(40,30,50,.62)'; ctx.font = `900 ${r * 1.05}px system-ui,"Segoe UI Symbol",sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(C.g, 0, r * .06);
+  }
+  ctx.restore();
+}
+
+// ---------- Flores ----------
+function petalo(ctx, forma, L, W) {
+  ctx.beginPath();
+  if (forma === 'punta') { ctx.moveTo(0, 0); ctx.bezierCurveTo(W, -L * .3, W * .7, -L * .8, 0, -L); ctx.bezierCurveTo(-W * .7, -L * .8, -W, -L * .3, 0, 0); }
+  else if (forma === 'redondo') { ctx.ellipse(0, -L * .55, W, L * .55, 0, 0, TAU); }
+  else if (forma === 'cerezo') { ctx.moveTo(0, 0); ctx.bezierCurveTo(W * 1.2, -L * .2, W * 1.1, -L * 1.05, W * .14, -L); ctx.lineTo(0, -L * .86); ctx.lineTo(-W * .14, -L); ctx.bezierCurveTo(-W * 1.1, -L * 1.05, -W * 1.2, -L * .2, 0, 0); }
+  else { ctx.ellipse(0, -L * .5, W * .7, L * .5, 0, 0, TAU); }
+  ctx.closePath();
+}
+function anillo(ctx, n, L, W, forma, C, rot0 = 0, oscuro = 0) {
+  const g = ctx.createLinearGradient(0, 0, 0, -L);
+  g.addColorStop(0, oscuro ? C.d : C.b); g.addColorStop(1, C.l);
+  for (let i = 0; i < n; i++) {
+    ctx.save(); ctx.rotate(rot0 + i * TAU / n); petalo(ctx, forma, L, W);
+    ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = C.d + '66'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+  }
+}
+function disco(ctx, r, c1, c2) {
+  const g = ctx.createRadialGradient(-r * .25, -r * .3, r * .1, 0, 0, r); g.addColorStop(0, c1); g.addColorStop(1, c2);
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+}
+// Dibuja una flor centrada en (x,y) con radio R. f = especie, ci = color, t = tiempo (para el balanceo)
+function dibujaFlor(ctx, x, y, R, f, ci, t = 0) {
+  const C = COLORES[ci];
+  ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t * 1.3 + x * .01) * 0.05);
+  switch (f) {
+    case 'margarita': anillo(ctx, 12, R, R * .24, 'ovalo', C, 0); anillo(ctx, 12, R * .86, R * .22, 'ovalo', C, TAU / 24, 1); disco(ctx, R * .26, '#FFE680', '#E0A92A'); break;
+    case 'rosa': anillo(ctx, 6, R, R * .5, 'redondo', C, 0); anillo(ctx, 5, R * .72, R * .42, 'redondo', C, .3, 1); anillo(ctx, 4, R * .46, R * .34, 'redondo', C, .8); disco(ctx, R * .12, C.d, C.d); break;
+    case 'tulipan': ctx.translate(0, R * .4); anillo(ctx, 1, R * 1.15, R * .46, 'punta', C, -.55); anillo(ctx, 1, R * 1.15, R * .46, 'punta', C, .55); anillo(ctx, 1, R * 1.25, R * .5, 'punta', C, 0, 1); break;
+    case 'girasol': anillo(ctx, 20, R, R * .2, 'punta', C, 0); anillo(ctx, 20, R * .82, R * .18, 'punta', C, TAU / 40, 1); disco(ctx, R * .42, '#8a5a35', '#4e3020');
+      ctx.fillStyle = 'rgba(255,220,160,.5)'; for (let i = 0; i < 14; i++) { const a = i * 2.4, rr2 = R * .36 * Math.sqrt((i + 1) / 14); ctx.beginPath(); ctx.arc(Math.cos(a) * rr2, Math.sin(a) * rr2, R * .03, 0, TAU); ctx.fill(); } break;
+    case 'loto': anillo(ctx, 8, R, R * .34, 'punta', C, 0); anillo(ctx, 8, R * .74, R * .3, 'punta', C, TAU / 16, 1); anillo(ctx, 6, R * .45, R * .22, 'punta', C, 0); disco(ctx, R * .12, '#FFE680', '#E0A92A'); break;
+    case 'amapola': anillo(ctx, 4, R, R * .66, 'redondo', C, .4); anillo(ctx, 4, R * .6, R * .45, 'redondo', C, 1.2, 1); disco(ctx, R * .15, '#3d2b3a', '#1e1420'); break;
+    case 'cerezo': anillo(ctx, 5, R, R * .5, 'cerezo', C, 0);
+      ctx.strokeStyle = C.d; ctx.lineWidth = 1.2; for (let i = 0; i < 9; i++) { const a = i * TAU / 9, l = R * .36; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * l, Math.sin(a) * l); ctx.stroke(); ctx.fillStyle = '#FFE680'; ctx.beginPath(); ctx.arc(Math.cos(a) * l, Math.sin(a) * l, R * .05, 0, TAU); ctx.fill(); } break;
+    case 'hortensia': for (let i = 0; i < 16; i++) { const a = i * 2.4, rr2 = R * .78 * Math.sqrt((i + .5) / 16); ctx.save(); ctx.translate(Math.cos(a) * rr2, Math.sin(a) * rr2); anillo(ctx, 4, R * .3, R * .16, 'redondo', C, i); disco(ctx, R * .05, '#fff7c0', '#e3c76a'); ctx.restore(); } break;
+    case 'orquidea': anillo(ctx, 1, R, R * .5, 'redondo', C, -1.15); anillo(ctx, 1, R, R * .5, 'redondo', C, 1.15); anillo(ctx, 1, R * .95, R * .36, 'punta', C, 0, 1); anillo(ctx, 1, R * .62, R * .34, 'redondo', C, Math.PI, 1); disco(ctx, R * .1, '#FFE680', '#C98A1E'); break;
+    case 'estrella': anillo(ctx, 6, R * 1.05, R * .3, 'punta', C, 0); anillo(ctx, 6, R * .66, R * .24, 'punta', C, TAU / 12, 1); disco(ctx, R * .16, '#FFE680', '#E0A92A'); break;
+    case 'lavanda': for (let i = 0; i < 9; i++) { const yy = R * .95 - i * R * .22, s = 1 - i * .06; for (const sgn of [-1, 1]) { ctx.save(); ctx.translate(sgn * R * .17 * s, yy); ctx.rotate(sgn * .5); disco(ctx, R * .17 * s, C.l, C.b); ctx.restore(); } } break;
+    case 'luna': { const g = ctx.createRadialGradient(0, 0, R * .2, 0, 0, R * 1.5); g.addColorStop(0, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, R * 1.5, 0, TAU); ctx.fill();
+      anillo(ctx, 6, R, R * .46, 'redondo', { ...C, b: '#ffffff', l: C.l, d: C.b }, 0); disco(ctx, R * .2, '#fffbe0', '#f0d77a'); break; }
+    default: anillo(ctx, 8, R, R * .3, 'ovalo', C, 0); disco(ctx, R * .22, '#FFE680', '#E0A92A');
+  }
+  ctx.restore();
+}
+// Flor con tallo y hojas que crece desde (x, yBase) hasta (x, yTop). prog 0..1
+function dibujaFlorCrecida(ctx, x, yBase, yTop, R, f, ci, prog, t) {
+  const p = clamp(prog, 0, 1);
+  if (p <= 0) return;
+  const stemP = ease.out(clamp(p / 0.6, 0, 1)), flowP = ease.elastic(clamp((p - 0.45) / 0.55, 0, 1));
+  const yy = lerp(yBase, yTop, stemP), sway = Math.sin(t * 1.5 + x * .02) * R * .07 * stemP;
+  ctx.save();
+  ctx.strokeStyle = '#4FAE6C'; ctx.lineWidth = Math.max(3, R * .12); ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x, yBase); ctx.quadraticCurveTo(x + sway * .3, (yBase + yy) / 2, x + sway, yy); ctx.stroke();
+  if (stemP > .35) {                                         // hojas
+    const hs = ease.out(clamp((stemP - .35) / .5, 0, 1)), hy = lerp(yBase, yy, .45);
+    ctx.fillStyle = '#6CC785';
+    for (const sgn of [-1, 1]) { ctx.save(); ctx.translate(x + sway * .4, hy); ctx.rotate(sgn * 1.0); ctx.scale(hs, hs); petalo(ctx, 'punta', R * .9, R * .32); ctx.fill(); ctx.restore(); }
+  }
+  ctx.restore();
+  if (flowP > 0.01) { ctx.save(); ctx.translate(x + sway, yy); ctx.scale(flowP, flowP); dibujaFlor(ctx, 0, 0, R, f, ci, t); ctx.restore(); }
+}
+
+// ---------- Macetas ----------
+function dibujaMaceta(ctx, x, y, w, h, skin, d, o = {}) {
+  const baseH = d * 0.55, rimH = d * 0.26;
+  // sombra en el suelo
+  ctx.fillStyle = 'rgba(80,50,30,.16)'; ctx.beginPath(); ctx.ellipse(x + w / 2, y + h + d * .1, w * .56, d * .17, 0, 0, TAU); ctx.fill();
+  // cuerpo de cristal
+  const cuerpo = [Math.min(8, w * .1), Math.min(8, w * .1), w * .32, w * .32];
+  rr(ctx, x, y + rimH * .5, w, h - rimH * .5, cuerpo);
+  const g = ctx.createLinearGradient(x, 0, x + w, 0);
+  g.addColorStop(0, 'rgba(255,255,255,.55)'); g.addColorStop(.45, 'rgba(255,255,255,.16)'); g.addColorStop(1, 'rgba(255,255,255,.42)');
+  ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = o.sel ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,.85)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.strokeStyle = 'rgba(120,90,70,.22)'; ctx.lineWidth = 1; rr(ctx, x - 1, y + rimH * .5 - 1, w + 2, h - rimH * .5 + 2, cuerpo); ctx.stroke();
+  // base de color de la maceta + tierra
+  ctx.save(); rr(ctx, x, y + rimH * .5, w, h - rimH * .5, cuerpo); ctx.clip();
+  const gb = ctx.createLinearGradient(x, 0, x + w, 0); gb.addColorStop(0, skin.band); gb.addColorStop(.5, skin.rim); gb.addColorStop(1, skin.rim2);
+  ctx.fillStyle = gb; ctx.fillRect(x, y + h - baseH, w, baseH);
+  ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(x, y + h - baseH, w, baseH * .16);
+  ctx.restore();
+  ctx.fillStyle = '#6b4a31'; ctx.beginPath(); ctx.ellipse(x + w / 2, y + h - baseH, w * .42, d * .14, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#7e593b'; ctx.beginPath(); ctx.ellipse(x + w / 2 - w * .08, y + h - baseH - d * .02, w * .3, d * .08, 0, 0, TAU); ctx.fill();
+  return { baseY: y + h - baseH, rimH };
+}
+function dibujaMacetaFrente(ctx, x, y, w, h, skin, d) {          // borde superior y brillo, encima de las semillas
+  const rimH = d * 0.26;
+  const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, skin.band); g.addColorStop(.5, skin.rim); g.addColorStop(1, skin.rim2);
+  rr(ctx, x - w * .06, y, w * 1.12, rimH, rimH * .5); ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.1)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.5)'; rr(ctx, x + w * .16, y + h * .12, w * .09, h * .5, w * .05); ctx.fill();
+}
+
+// ---------- Fondos ----------
+const FONDO = { estrellas: null, polen: null };
+function iniciaFondo() {
+  const r = rng(99);
+  FONDO.estrellas = Array.from({ length: 70 }, () => ({ x: r(), y: r() * .8, s: .5 + r() * 1.6, f: r() * 6 }));
+  FONDO.polen = Array.from({ length: 22 }, () => ({ x: r(), y: r(), v: .006 + r() * .012, s: 2 + r() * 4, f: r() * 6 }));
+}
+function dibujaFondo(ctx, w, h, tema, t) {
+  const T = TEMAS[tema] || TEMAS.amanecer;
+  const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, T.f[0]); g.addColorStop(.55, T.f[1]); g.addColorStop(1, T.f[2]);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  T.blobs.forEach((c, i) => {                                // manchas de luz que se mueven despacio
+    const bx = w * (.2 + .3 * i) + Math.sin(t * .15 + i * 2) * w * .08, by = h * (.25 + .25 * i) + Math.cos(t * .12 + i) * h * .05, br = Math.max(w, h) * .45;
+    const rg = ctx.createRadialGradient(bx, by, 0, bx, by, br); rg.addColorStop(0, c + 'aa'); rg.addColorStop(1, c + '00');
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, w, h);
+  });
+  if (T.osc) {                                               // estrellas y luciérnagas
+    for (const s of FONDO.estrellas) { ctx.globalAlpha = .35 + .5 * (.5 + .5 * Math.sin(t * 1.4 + s.f)); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x * w, s.y * h, s.s, 0, TAU); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
+  for (const p of FONDO.polen) {                             // polen flotando
+    const px = ((p.x + Math.sin(t * .3 + p.f) * .03) % 1) * w, py = (((p.y - t * p.v) % 1) + 1) % 1 * h;
+    ctx.globalAlpha = T.osc ? .55 : .5; ctx.fillStyle = T.osc ? '#ffe9a0' : '#fff'; ctx.beginPath(); ctx.arc(px, py, p.s * (T.osc ? .8 : 1), 0, TAU); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// =====================================================================
+//  TABLERO: disposición, entrada táctil, animaciones y partículas
+// =====================================================================
+const cv = $('#c'), ctx = cv.getContext('2d');
+const T = {
+  w: 0, h: 0, dpr: 1, t: 0, modo: 'home',
+  n: 1, prm: null, pots: [], ini: [], vis: [], hist: [], sel: -1, vuelos: [], parts: [], pista: null, slots: [], d: 60,
+  usadosDeshacer: 0, extra: false, fin: false, finT: 0, ganando: false, mov: 0, espCol: [], bloqueaModal: false, floresNivel: 0
+};
+const nuevoVis = () => ({ sel: 0, shake: 0, bloom: null, llega: 0 });
+
+function ajusta() {
+  T.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  T.w = window.innerWidth; T.h = window.innerHeight;
+  cv.width = Math.round(T.w * T.dpr); cv.height = Math.round(T.h * T.dpr);
+  ctx.setTransform(T.dpr, 0, 0, T.dpr, 0, 0);
+  layout();
+}
+window.addEventListener('resize', ajusta);
+
+// ---------- Disposición de las macetas ----------
+function layout() {
+  const P = T.pots.length;
+  if (!P) { T.slots = []; return; }
+  const top = 92, bottom = T.h - 124, W = T.w - 20, H = Math.max(200, bottom - top);
+  let mejor = null;
+  for (let cols = Math.min(P, 2); cols <= Math.min(P, 7); cols++) {
+    const rows = Math.ceil(P / cols), sw = W / cols, sh = H / rows;
+    const d = Math.min(sw * 0.68, (sh * 0.80) / (CAP * 1.08 + 0.85), 104);
+    if (!mejor || d > mejor.d + 0.5) mejor = { cols, rows, sw, sh, d };
+  }
+  const { cols, rows, sw, sh, d } = mejor;
+  T.d = d;
+  const w = d * 1.3, h = CAP * d * 1.08 + d * 0.85;
+  T.slots = [];
+  for (let i = 0; i < P; i++) {
+    const r = Math.floor(i / cols), c = i % cols;
+    const enFila = r === rows - 1 ? P - r * cols : cols;
+    const x0 = 10 + (cols - enFila) * sw / 2;
+    const cx = x0 + (c + 0.5) * sw;
+    const cy = top + H / rows * (r + 0.5) + d * 0.25;
+    T.slots.push({ x: cx - w / 2, y: cy - h / 2, w, h, cx });
+  }
+}
+function posSemilla(i, j) {
+  const s = T.slots[i], d = T.d, baseH = d * 0.55;
+  return { x: s.cx, y: s.y + s.h - baseH - (j + 0.5) * d * 1.08 - d * 0.04 };
+}
+
+// ---------- Nivel ----------
+function empiezaNivel(n) {
+  const L = generaNivel(n);
+  T.n = n; T.prm = L.prm; T.pots = L.pots; T.ini = copia(L.pots);
+  T.vis = T.pots.map(nuevoVis); T.hist = []; T.sel = -1; T.vuelos = []; T.pista = null;
+  T.usadosDeshacer = 0; T.extra = false; T.fin = false; T.ganando = false; T.mov = 0; T.floresNivel = 0;
+  const r = rng(n * 31 + 7), libres = ESPECIES.slice(0, S.especies).map((_, i) => i);
+  T.espCol = COLORES.map(() => libres[Math.floor(r() * libres.length)]);
+  layout(); actualizaHUD();
+  if (!S.intro && n === 1) setTimeout(() => toast('Toca una maceta y luego otra para pasar las semillas. Junta 4 iguales y florecerán 🌸'), 700);
+}
+function reiniciaNivel() {
+  T.pots = copia(T.ini); T.vis = T.pots.map(nuevoVis); T.hist = []; T.sel = -1; T.vuelos = []; T.pista = null;
+  T.usadosDeshacer = 0; T.extra = false; T.fin = false; T.mov = 0; layout(); actualizaHUD(); Aud.boton();
+}
+
+// ---------- Entrada ----------
+function potEn(x, y) {
+  let mejor = -1, md = 1e9;
+  T.slots.forEach((s, i) => {
+    if (x >= s.x - T.d * .3 && x <= s.x + s.w + T.d * .3 && y >= s.y - T.d * 1.2 && y <= s.y + s.h + T.d * .3) {
+      const dd = Math.abs(x - s.cx); if (dd < md) { md = dd; mejor = i; }
+    }
+  });
+  return mejor;
+}
+cv.addEventListener('pointerdown', e => {
+  Aud.init(); Aud.reanuda();
+  if (T.modo !== 'juego' || T.bloqueaModal || T.fin) return;
+  const i = potEn(e.clientX, e.clientY);
+  if (i >= 0) toca(i);
+});
+function seleccionable(i) { const p = T.pots[i]; return p.length > 0 && !completa(p) && T.vis[i].llega === 0; }
+function toca(i) {
+  T.pista = null;
+  if (T.sel === -1) {
+    if (seleccionable(i)) { T.sel = i; Aud.elige(); vibra(8); } else { T.vis[i].shake = 1; Aud.error(); }
+    return;
+  }
+  if (T.sel === i) { T.sel = -1; Aud.suelta(); return; }
+  if (T.vis[T.sel].llega === 0 && puedeMover(T.pots, T.sel, i)) { intentaMover(T.sel, i); return; }
+  if (seleccionable(i)) { T.sel = i; Aud.elige(); return; }   // cambia de selección
+  T.vis[i].shake = 1; Aud.error(); vibra(12);
+}
+function liftActual(i) { return T.d * 0.95 * ease.out(T.vis[i].sel); }
+function intentaMover(a, b) {
+  const P = T.pots;
+  if (!puedeMover(P, a, b)) return false;
+  T.hist.push(copia(P)); if (T.hist.length > 80) T.hist.shift();
+  const A = P[a], B = P[b], k = Math.min(racha(A), CAP - B.length), i0 = A.length - k, j0 = B.length, c = A[A.length - 1].c;
+  const lift = liftActual(a), orig = [];
+  for (let j = 0; j < k; j++) { const p = posSemilla(a, i0 + j); orig.push({ x: p.x, y: p.y - lift }); }
+  mueve(P, a, b);
+  for (let j = 0; j < k; j++) {
+    const dst = posSemilla(b, j0 + j);
+    T.vuelos.push({ c, x0: orig[j].x, y0: orig[j].y, x1: dst.x, y1: dst.y, t0: T.t + (k - 1 - j) * 0.07, dur: 0.36, b, idx: j0 + j });
+  }
+  T.vis[b].llega += k; T.sel = -1; T.pista = null; T.mov++;
+  Aud.suelta(); vibra(10);
+  return true;
+}
+function deshacer() {
+  if (T.modo !== 'juego' || T.fin || !T.hist.length) { if (!T.hist.length) toast('No hay nada que deshacer'); return; }
+  const gratis = esPlus() || T.usadosDeshacer < CFG.deshacerGratis;
+  if (!gratis && !gasta(CFG.costeDeshacer)) return;
+  const snap = T.hist.pop();
+  while (snap.length < T.pots.length) snap.push([]);
+  T.pots = snap; T.vuelos = []; T.sel = -1; T.pista = null;
+  T.vis = T.pots.map(p => { const v = nuevoVis(); if (completa(p)) v.bloom = T.t - 10; return v; });
+  T.usadosDeshacer++; Aud.boton(); actualizaHUD();
+}
+function anadeMaceta() {
+  if (T.modo !== 'juego' || T.fin) return;
+  if (T.extra) { toast('Ya añadió una maceta extra en este nivel'); return; }
+  if (!esPlus() && !gasta(CFG.costeMaceta)) return;
+  T.pots.push([]); T.vis.push(nuevoVis()); T.extra = true; layout(); Aud.moneda(); actualizaHUD();
+}
+function daPista() {
+  if (T.modo !== 'juego' || T.fin) return;
+  const dia = hoy();
+  if (S.pistasDia !== dia) { S.pistasDia = dia; S.pistasDiaUsadas = 0; }
+  let pago = null;
+  if (esPlus() && S.pistasDiaUsadas < 3) pago = 'plus';
+  else if (S.pistas > 0) pago = 'pistas';
+  else if (S.monedas >= CFG.costePista) pago = 'monedas';
+  else { sinSaldo(CFG.costePista, 'una pista'); return; }
+  const sol = resolver(T.pots, 15000);
+  let mv = sol && sol[0];
+  if (!mv) { for (let a = 0; a < T.pots.length && !mv; a++) for (let b = 0; b < T.pots.length && !mv; b++) if (movimientoUtil(T.pots, a, b)) mv = { a, b }; }
+  if (!mv) { toast('No quedan movimientos: deshaga un paso o añada una maceta'); return; }
+  if (pago === 'plus') S.pistasDiaUsadas++; else if (pago === 'pistas') S.pistas--; else monedas(-CFG.costePista);
+  guarda();
+  T.pista = { a: mv.a, b: mv.b, t0: T.t }; T.sel = -1; Aud.campana(PENTA[4], 0, .1, .6); actualizaHUD();
+}
+
+// ---------- Efectos ----------
+function chorro(x, y, ci, n = 14, tipo = 'petalo') {
+  const C = COLORES[ci] || COLORES[0];
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, v = 60 + Math.random() * 160;
+    T.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 90, g: 260, life: 0, max: .9 + Math.random() * .7, r: 4 + Math.random() * 6, col: i % 3 ? C.b : C.l, tipo, rot: Math.random() * 6, vr: (Math.random() - .5) * 8 });
+  }
+}
+function confeti() {
+  for (let i = 0; i < 90; i++) {
+    const C = COLORES[i % COLORES.length];
+    T.parts.push({ x: Math.random() * T.w, y: -20 - Math.random() * T.h * .4, vx: (Math.random() - .5) * 60, vy: 80 + Math.random() * 140, g: 20, life: 0, max: 3 + Math.random() * 2, r: 5 + Math.random() * 7, col: Math.random() < .5 ? C.b : C.l, tipo: 'petalo', rot: Math.random() * 6, vr: (Math.random() - .5) * 6 });
+  }
+}
+function actualizaPartes(dt) {
+  for (const p of T.parts) { p.life += dt; p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt; p.vx *= .995; }
+  T.parts = T.parts.filter(p => p.life < p.max);
+}
+function dibujaPartes() {
+  for (const p of T.parts) {
+    const a = clamp(1 - p.life / p.max, 0, 1);
+    ctx.save(); ctx.globalAlpha = Math.min(1, a * 1.6); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.col;
+    if (p.tipo === 'chispa') { ctx.beginPath(); ctx.arc(0, 0, p.r * a, 0, TAU); ctx.fill(); }
+    else { ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * .55, 0, 0, TAU); ctx.fill(); }
+    ctx.restore();
+  }
+}
+
+// ---------- Actualización por fotograma ----------
+function actualiza(dt) {
+  if (T.modo !== 'juego') return;
+  T.vis.forEach((v, i) => {
+    const obj = T.sel === i ? 1 : 0;
+    v.sel += (obj - v.sel) * Math.min(1, dt * 16);
+    if (v.shake > 0) v.shake = Math.max(0, v.shake - dt * 3.2);
+  });
+  // semillas en vuelo
+  for (let k = T.vuelos.length - 1; k >= 0; k--) {
+    const f = T.vuelos[k];
+    if (T.t >= f.t0 + f.dur) {
+      T.vuelos.splice(k, 1);
+      const v = T.vis[f.b]; if (v) v.llega = Math.max(0, v.llega - 1);
+      const q = posSemilla(f.b, f.idx);
+      chorro(q.x, q.y, f.c, 4, 'chispa'); Aud.pon(f.idx + (T.mov % 3));
+      if (v && v.llega === 0 && T.pots[f.b] && completa(T.pots[f.b]) && v.bloom == null) florece(f.b);
+      if (!T.vuelos.length) { revisaFin(); }
+    }
+  }
+  if (T.fin && !T.ganando && T.t - T.finT > 1.5) { T.ganando = true; ganaNivel(); }
+}
+function florece(i) {
+  const v = T.vis[i], c = T.pots[i][0].c, s = T.slots[i];
+  v.bloom = T.t; T.floresNivel++; S.floresTotal++;
+  Aud.flor(); vibra([20, 40, 30]);
+  chorro(s.cx, s.y, c, 22, 'petalo'); chorro(s.cx, s.y, c, 8, 'chispa');
+  mision('flores', 1);
+}
+function revisaFin() {
+  if (T.fin) return;
+  if (resuelto(T.pots) && T.vis.every(v => v.llega === 0)) { T.fin = true; T.finT = T.t; T.sel = -1; return; }
+  if (!hayMovimientos(T.pots) && T.hist.length) toast('No quedan movimientos. Sin prisa: deshaga un paso o añada una maceta 🌱');
+}
+
+// ---------- Dibujo del tablero ----------
+function dibujaTablero() {
+  const skin = MACETAS[S.maceta] || MACETAS.terracota, estilo = S.semilla, d = T.d;
+  T.slots.forEach((s, i) => {
+    const v = T.vis[i], P = T.pots[i];
+    const x = s.x + (v.shake > 0 ? Math.sin(T.t * 70) * 5 * v.shake : 0), y = s.y;
+    const sx = { x, y, w: s.w, h: s.h };
+    dibujaMaceta(ctx, x, y, s.w, s.h, skin, d, { sel: T.sel === i });
+    if (T.pista && (T.pista.a === i || T.pista.b === i)) {
+      const pu = .5 + .5 * Math.sin((T.t - T.pista.t0) * 6);
+      ctx.save(); ctx.strokeStyle = `rgba(255,255,255,${.55 + .45 * pu})`; ctx.lineWidth = 4 + pu * 3; ctx.shadowColor = T.pista.a === i ? '#ffb199' : '#8fe0ac'; ctx.shadowBlur = 18;
+      rr(ctx, x - 4, y + d * .12, s.w + 8, s.h - d * .1, s.w * .36); ctx.stroke(); ctx.restore();
+    }
+    const bl = v.bloom == null ? 0 : clamp((T.t - v.bloom) / 1.5, 0, 1);
+    const nVis = P.length - v.llega, lift = liftActual(i), nTop = T.sel === i ? racha(P) : 0;
+    const levantadas = [];
+    for (let j = 0; j < nVis; j++) {
+      const pos = posSemilla(i, j), q = P[j];
+      const alta = nTop && j >= P.length - nTop;
+      const o = { oculta: !q.v, alpha: 1 - Math.min(1, bl * 1.8) };
+      if (alta) levantadas.push({ x: pos.x + (x - s.x), y: pos.y - lift, c: q.c, o }); else if (o.alpha > .01) dibujaSemilla(ctx, pos.x + (x - s.x), pos.y, d * .94, q.c, estilo, o);
+    }
+    dibujaMacetaFrente(ctx, x, y, s.w, s.h, skin, d);
+    for (const l of levantadas) {
+      ctx.fillStyle = 'rgba(80,50,30,.14)'; ctx.beginPath(); ctx.ellipse(l.x, l.y + d * .55 + lift * .3, d * .3, d * .08, 0, 0, TAU); ctx.fill();
+      dibujaSemilla(ctx, l.x, l.y, d * .94, l.c, estilo, l.o);
+    }
+    if (bl > 0) {
+      const baseY = y + s.h - d * .55, R = Math.min(s.w * .62, d * .78);
+      dibujaFlorCrecida(ctx, s.cx, baseY, y - R * .35, R, ESPECIES[T.espCol[P[0].c] || 0].f, P[0].c, bl, T.t);
+    }
+  });
+  // semillas volando
+  for (const f of T.vuelos) {
+    const u = (T.t - f.t0) / f.dur; if (u < 0) { dibujaSemilla(ctx, f.x0, f.y0, T.d * .94, f.c, S.semilla); continue; }
+    const e = ease.inOut(clamp(u, 0, 1)), arco = Math.min(f.y0, f.y1) - T.d * 1.1;
+    const x = lerp(f.x0, f.x1, e), y = (1 - e) * (1 - e) * f.y0 + 2 * (1 - e) * e * arco + e * e * f.y1;
+    const sq = 1 + Math.sin(clamp(u, 0, 1) * Math.PI) * .06;
+    dibujaSemilla(ctx, x, y, T.d * .94, f.c, S.semilla, { sx: 1 / sq, sy: sq });
+    if (Math.random() < .5) T.parts.push({ x, y, vx: (Math.random() - .5) * 30, vy: (Math.random() - .5) * 30, g: 0, life: 0, max: .35, r: 3, col: COLORES[f.c].l, tipo: 'chispa', rot: 0, vr: 0 });
+  }
+  // flecha de la pista
+  if (T.pista) {
+    const s = T.slots[T.pista.b], bob = Math.sin((T.t - T.pista.t0) * 7) * 6;
+    ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.strokeStyle = '#e2705a'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(s.cx, s.y - d * .25 + bob); ctx.lineTo(s.cx - d * .22, s.y - d * .62 + bob); ctx.lineTo(s.cx + d * .22, s.y - d * .62 + bob); ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+}
+
+// ---------- Escena de jardín (pantalla de inicio y galería) ----------
+function dibujaEscena(c, w, h, flores, t, tema, alt = .55) {
+  const TM = TEMAS[tema] || TEMAS.amanecer;
+  const colina = (base, amp, fase, col) => {
+    c.fillStyle = col; c.beginPath(); c.moveTo(0, h);
+    for (let x = 0; x <= w + 8; x += 8) c.lineTo(x, h * base + Math.sin(x / w * 3.2 + fase) * h * amp);
+    c.lineTo(w, h); c.closePath(); c.fill();
+  };
+  colina(alt - .02, .028, .6, TM.suelo + 'aa'); colina(alt + .06, .03, 2.1, TM.suelo);
+  const lista = flores.slice().sort((a, b) => a.y - b.y);
+  for (const fl of lista) {
+    const px = fl.x * w, py = h * (alt + .1) + fl.y * h * (1 - alt - .16);
+    const R = lerp(.032, .066, fl.y) * Math.min(w, h * .9);
+    dibujaFlorCrecida(c, px, py, py - R * 2.8, R, ESPECIES[fl.e % ESPECIES.length].f, fl.c, 1, t + fl.x * 5);
+  }
+  for (let k = 0; k < 3; k++) {                                    // mariposas
+    const bx = (.2 + .3 * k + .15 * Math.sin(t * .3 + k * 2)) * w, by = h * (alt - .1 - .08 * k) + Math.sin(t * .9 + k) * h * .03, a = Math.sin(t * 14 + k) * .7;
+    c.save(); c.translate(bx, by); c.fillStyle = COLORES[(k * 3 + 1) % 10].b;
+    for (const sg of [-1, 1]) { c.save(); c.scale(sg * Math.abs(Math.cos(a)) , 1); c.beginPath(); c.ellipse(7, -3, 8, 5, -.4, 0, TAU); c.fill(); c.beginPath(); c.ellipse(5, 4, 6, 4, .4, 0, TAU); c.fill(); c.restore(); }
+    c.restore();
+  }
+}
+function floresInicio() {
+  if (S.jardin.length) return S.jardin.slice(-10).map((f, i) => ({ ...f, x: .08 + .84 * (i + .5) / 10, y: (i % 3) * .08 }));
+  return [0, 1, 2, 3, 4].map(i => ({ e: i % 3, c: [0, 2, 1, 4, 5][i], x: .12 + i * .19, y: (i % 2) * .12 }));
+}
+
+// ---------- Bucle principal ----------
+let ultimo = 0;
+function frame(ts) {
+  const dt = Math.min(.05, (ts - ultimo) / 1000 || 0); ultimo = ts; T.t += dt;
+  const tema = TEMAS[S.tema] ? S.tema : 'amanecer';
+  document.body.classList.toggle('oscuro', !!TEMAS[tema].osc);
+  if (T.modo !== 'jardin') {
+    dibujaFondo(ctx, T.w, T.h, tema, T.t);
+    if (T.modo === 'home') dibujaEscena(ctx, T.w, T.h, floresInicio(), T.t, tema, .6);
+    if (T.modo === 'juego') { actualiza(dt); dibujaTablero(); }
+    actualizaPartes(dt); dibujaPartes();
+  } else { dibujaJardin(T.t); actualizaPartes(dt); }
+  requestAnimationFrame(frame);
+}
+
+// =====================================================================
+//  INTERFAZ: pantallas, tienda, misiones, jardín, ajustes, anuncios y pagos
+// =====================================================================
+let toastT = null;
+function toast(msg, ms = 2800) {
+  const el = $('#toast'); el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), ms);
+}
+function modal(html, cerrable = true) {
+  $('#modal').innerHTML = html;
+  const f = $('#modal-fondo'); f.classList.add('on'); T.bloqueaModal = true;
+  f.onclick = e => { if (e.target === f && cerrable) cierra(); };
+  $('#modal').scrollTop = 0;
+}
+function cierra() { $('#modal-fondo').classList.remove('on'); T.bloqueaModal = false; }
+function enlaza(map) { for (const k in map) { const el = $('#modal [data-a="' + k + '"]'); if (el) el.onclick = () => { Aud.init(); Aud.boton(); map[k](); }; } }
+
+// ---------- Barra superior e inferior ----------
+function actualizaHUD() {
+  $('#monedas').textContent = fmt(S.monedas);
+  if (T.prm) {
+    $('#nivel-txt').firstChild.nodeValue = 'Nivel ' + T.n;
+    $('#nivel-sub').textContent = T.prm.reto ? 'Reto' : T.prm.relajado ? 'Tranquilo' : T.prm.ocultas ? 'Semillas cerradas' : '';
+  }
+  const libres = esPlus() ? '∞' : Math.max(0, CFG.deshacerGratis - T.usadosDeshacer);
+  const nd = $('#n-deshacer'); nd.textContent = libres === 0 ? CFG.costeDeshacer : libres; nd.className = 'ins' + (libres === 0 ? '' : ' g');
+  const dia = hoy(); if (S.pistasDia !== dia) { S.pistasDia = dia; S.pistasDiaUsadas = 0; }
+  const np = $('#n-pista');
+  if (esPlus() && S.pistasDiaUsadas < 3) np.textContent = 3 - S.pistasDiaUsadas; else np.textContent = S.pistas > 0 ? S.pistas : CFG.costePista;
+  const nm = $('#n-maceta'); nm.textContent = T.extra ? '✓' : (esPlus() ? '★' : CFG.costeMaceta);
+  $('#b-maceta').disabled = T.extra;
+}
+function gasta(c) {
+  if (S.monedas >= c) { monedas(-c); Aud.moneda(); actualizaHUD(); return true; }
+  sinSaldo(c); return false;
+}
+function sinSaldo(c, que = 'esto') {
+  modal(`<h2>Faltan monedas</h2><p class="cen">Necesita ${c} monedas para ${que}. Tiene ${fmt(S.monedas)}.</p>
+    <div class="cen" style="margin-top:14px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <button class="btn verde chico" data-a="ad">▶ Ver un anuncio · +40 monedas</button>
+      <button class="btn chico" data-a="tienda">Ir a la tienda</button>
+      <button class="btn sec" data-a="no">Ahora no</button></div>`);
+  enlaza({ ad: () => { cierra(); Anuncios.recompensa(() => { monedas(40); Aud.moneda(); actualizaHUD(); toast('+40 monedas 🌼'); }); }, tienda: () => { cierra(); abreTienda(); }, no: cierra });
+}
+
+// ---------- Anuncios (simulados hasta conectar AdMob) ----------
+const Anuncios = {
+  mostrar(txt, espera, cb, boton) {
+    const a = $('#anuncio'), b = $('#anuncio-cerrar'); a.classList.add('on'); b.style.display = 'none'; $('#anuncio-txt').textContent = txt; b.textContent = boton;
+    let n = espera; const tick = () => { if (n > 0) { $('#anuncio-txt').textContent = txt; b.style.display = 'none'; n--; setTimeout(tick, 1000); } else { b.style.display = 'inline-flex'; } };
+    tick();
+    b.onclick = () => { a.classList.remove('on'); cb && cb(); };
+  },
+  intersticial(cb) { if (sinAnuncios() || !CFG.anunciosSimulados) { cb && cb(); return; } this.mostrar('Anuncio simulado. Con «Sin anuncios» o Jardín+ no aparece.', 2, cb, 'Cerrar'); },
+  recompensa(cb) { this.mostrar('Anuncio con recompensa (simulado)', 2, cb, 'Recoger recompensa'); }
+};
+
+// ---------- Pagos (simulados hasta conectar Google Play) ----------
+const PRODUCTOS = {
+  monedas1: { n: '500 monedas', cons: true }, monedas2: { n: '1.600 monedas', cons: true }, monedas3: { n: '3.500 monedas', cons: true }, monedas4: { n: '9.500 monedas', cons: true },
+  sinAnuncios: { n: 'Sin anuncios', cons: false }, jardinMas: { n: 'Jardín+ (1 mes)', cons: false, sub: true }, pack: { n: 'Pack inicial', cons: false }
+};
+const Pagos = {
+  async comprar(id) {
+    if (CFG.pruebaPagos) {
+      return new Promise(res => {
+        modal(`<h2>Compra de prueba</h2><p class="cen"><b>${PRODUCTOS[id].n}</b> · ${CFG.precios[id]}</p><p class="cen">Esto es una simulación: <b>no se cobra nada</b>. En la versión publicada, aquí aparece el pago de Google Play.</p>
+          <div class="cen" style="display:flex;gap:10px;justify-content:center;margin-top:12px"><button class="btn verde chico" data-a="si">Probar compra</button><button class="btn sec" data-a="no">Cancelar</button></div>`, false);
+        enlaza({ si: () => { cierra(); res(true); }, no: () => { cierra(); res(false); } });
+      });
+    }
+    return this.real(id);
+  },
+  // Facturación real de Google Play dentro de una app Android empaquetada (TWA). Ver GUIA_PUBLICAR.md. SIN PROBAR: requiere cuenta de Play Console.
+  async real(id) {
+    try {
+      if (!window.getDigitalGoodsService) throw new Error('Esta versión no puede cobrar todavía.');
+      const svc = await window.getDigitalGoodsService('https://play.google.com/billing');
+      const req = new PaymentRequest([{ supportedMethods: 'https://play.google.com/billing', data: { sku: id } }]);
+      const resp = await req.show();
+      const token = resp.details && resp.details.purchaseToken;
+      // IMPORTANTE: antes de dar el producto, verificar `token` en un servidor propio con la API de Google Play Developer.
+      await resp.complete('success');
+      if (PRODUCTOS[id].cons && svc.consume) await svc.consume(token);
+      return true;
+    } catch (e) { toast('No se pudo completar la compra'); return false; }
+  }
+};
+function aplicaCompra(id) {
+  if (id.startsWith('monedas')) { monedas({ monedas1: 500, monedas2: 1600, monedas3: 3500, monedas4: 9500 }[id]); }
+  if (id === 'sinAnuncios') S.sinAnuncios = true;
+  if (id === 'jardinMas') S.subHasta = Math.max(Date.now(), S.subHasta) + 30 * 86400000;
+  if (id === 'pack') { monedas(1500); S.pistas += 5; S.semillasOk.gema = 1; S.packComprado = true; }
+  guarda(); Aud.gana(); actualizaHUD(); toast('¡Gracias, señor! Compra aplicada 🌸', 3500);
+}
+async function compra(id, despues) { if (await Pagos.comprar(id)) { aplicaCompra(id); if (despues) despues(); } }
+
+// ---------- Tienda ----------
+let tiendaTab = 'ofertas';
+function abreTienda(tab) {
+  if (tab) tiendaTab = tab;
+  const tabs = [['ofertas', 'Ofertas'], ['monedas', 'Monedas'], ['pers', 'Personalizar']];
+  let cuerpo = '';
+  if (tiendaTab === 'ofertas') {
+    cuerpo += `<div class="tarjeta destacada"><div class="ico">🌷</div><div class="t"><b>Jardín+</b><div>Sin anuncios · deshacer ilimitado · 3 pistas gratis al día · +30 % monedas · tema Aurora</div></div><button class="btn chico" data-a="c-jardinMas">${esPlus() ? 'Renovar' : CFG.precios.jardinMas}</button></div>`;
+    if (esPlus()) cuerpo += `<p class="cen">Jardín+ activo hasta el ${new Date(S.subHasta).toLocaleDateString('es-ES')}</p>`;
+    if (!S.packComprado) cuerpo += `<div class="tarjeta"><div class="ico">🎁</div><div class="t"><b>Pack inicial</b><div>1.500 monedas · 5 pistas · semillas Gemas</div></div><button class="btn chico" data-a="c-pack">${CFG.precios.pack}</button></div>`;
+    if (!sinAnuncios()) cuerpo += `<div class="tarjeta"><div class="ico">🚫</div><div class="t"><b>Sin anuncios</b><div>Para siempre, un único pago</div></div><button class="btn chico" data-a="c-sinAnuncios">${CFG.precios.sinAnuncios}</button></div>`;
+    cuerpo += `<div class="tarjeta"><div class="ico">▶</div><div class="t"><b>Anuncio con recompensa</b><div>+40 monedas, cuando usted quiera</div></div><button class="btn verde chico" data-a="ad">Ver</button></div>`;
+  } else if (tiendaTab === 'monedas') {
+    [['monedas1', '🪙', '500 monedas'], ['monedas2', '💰', '1.600 monedas', 'Mejor valor'], ['monedas3', '👝', '3.500 monedas'], ['monedas4', '🏺', '9.500 monedas']].forEach(p => {
+      cuerpo += `<div class="tarjeta"><div class="ico">${p[1]}</div><div class="t"><b>${p[2]}</b><div>${p[3] || 'Sin caducidad'}</div></div><button class="btn chico" data-a="c-${p[0]}">${CFG.precios[p[0]]}</button></div>`;
+    });
+    cuerpo += `<p class="cen" style="font-size:12px">Las monedas sirven para pistas, deshacer y personalizar. Nunca hay cajas sorpresa: se ve siempre lo que se compra.</p>`;
+  } else {
+    const secc = (tit, cat, clave, ok) => {
+      let h = `<p style="margin:10px 0 4px"><b>${tit}</b></p><div class="rejilla">`;
+      for (const k in cat) {
+        const it = cat[k], pos = !!(ok[k] || (it.plus && esPlus())), uso = S[clave] === k;
+        const ac = pos ? (uso ? '' : `<button class="usar" data-a="u-${clave}-${k}">Usar</button>`) : (it.plus ? `<button data-a="p-plus">Jardín+</button>` : `<button data-a="b-${clave}-${k}">🪙 ${it.precio}</button>`);
+        h += `<div class="item ${uso ? 'sel' : ''}"><canvas data-prev="${clave}:${k}" width="120" height="90"></canvas>${it.n}<br>${uso ? '✓ En uso' : ''}${ac}</div>`;
+      }
+      return h + '</div>';
+    };
+    cuerpo += secc('Fondos', TEMAS, 'tema', S.temasOk) + secc('Semillas', SEMILLAS, 'semilla', S.semillasOk) + secc('Macetas', MACETAS, 'maceta', S.macetasOk);
+  }
+  modal(`<h2>Tienda</h2><div class="cen"><span class="pill">🪙 ${fmt(S.monedas)}</span></div>
+    <div class="tabs">${tabs.map(t => `<button class="${t[0] === tiendaTab ? 'on' : ''}" data-a="t-${t[0]}">${t[1]}</button>`).join('')}</div>${cuerpo}
+    <div class="cen" style="margin-top:10px"><button class="btn sec" data-a="x">Cerrar</button></div>`);
+  const mp = { x: cierra, ad: () => { cierra(); Anuncios.recompensa(() => { monedas(40); Aud.moneda(); toast('+40 monedas 🌼'); }); }, 'p-plus': () => abreTienda('ofertas') };
+  tabs.forEach(t => (mp['t-' + t[0]] = () => abreTienda(t[0])));
+  Object.keys(PRODUCTOS).forEach(id => (mp['c-' + id] = () => { cierra(); compra(id, () => abreTienda()); }));
+  [['tema', TEMAS, 'temasOk'], ['semilla', SEMILLAS, 'semillasOk'], ['maceta', MACETAS, 'macetasOk']].forEach(([cl, cat, okk]) => {
+    for (const k in cat) {
+      mp[`u-${cl}-${k}`] = () => { S[cl] = k; guarda(); abreTienda(); };
+      mp[`b-${cl}-${k}`] = () => { if (S.monedas < cat[k].precio) { sinSaldo(cat[k].precio, 'esto'); return; } monedas(-cat[k].precio); S[okk][k] = 1; S[cl] = k; guarda(); Aud.moneda(); abreTienda(); };
+    }
+  });
+  enlaza(mp);
+  document.querySelectorAll('#modal canvas[data-prev]').forEach(c => {
+    const [cl, k] = c.dataset.prev.split(':'), g = c.getContext('2d'); g.clearRect(0, 0, 120, 90);
+    if (cl === 'tema') { const t = TEMAS[k], gr = g.createLinearGradient(0, 0, 0, 90); gr.addColorStop(0, t.f[0]); gr.addColorStop(.6, t.f[1]); gr.addColorStop(1, t.f[2]); g.fillStyle = gr; rr(g, 6, 4, 108, 82, 14); g.fill(); dibujaFlor(g, 60, 46, 22, 'margarita', 0, 0); }
+    if (cl === 'semilla') { for (let i = 0; i < 3; i++) dibujaSemilla(g, 26 + i * 34, 46, 30, [0, 2, 1][i], k); }
+    if (cl === 'maceta') { const sk = MACETAS[k]; dibujaMaceta(g, 38, 6, 44, 76, sk, 30); dibujaMacetaFrente(g, 38, 6, 44, 76, sk, 30); dibujaSemilla(g, 60, 52, 26, 2, S.semilla); dibujaSemilla(g, 60, 26, 26, 2, S.semilla); }
+  });
+}
+
+// ---------- Misiones diarias ----------
+function misionesHoy() {
+  const d = hoy();
+  if (S.misiones.dia !== d) {
+    const r = rng(Number(d.replace(/-/g, '')));
+    const pick = a => a[Math.floor(r() * a.length)];
+    const nm = pick([2, 3, 4]), fl = pick([10, 16, 24]);
+    S.misiones = { dia: d, lista: [
+      { id: 'niveles', txt: `Completa ${nm} niveles`, meta: nm, prog: 0, rec: 20 * nm, cob: false },
+      { id: 'flores', txt: `Haz florecer ${fl} macetas`, meta: fl, prog: 0, rec: 4 * fl, cob: false },
+      { id: 'sinDeshacer', txt: 'Completa un nivel sin deshacer', meta: 1, prog: 0, rec: 50, cob: false }
+    ] };
+    guarda();
+  }
+  return S.misiones.lista;
+}
+function mision(id, n) { const m = misionesHoy().find(x => x.id === id); if (m && m.prog < m.meta) { m.prog = Math.min(m.meta, m.prog + n); guarda(); } puntoMisiones(); }
+function puntoMisiones() { const p = $('#pt-mis'); if (p) p.style.display = misionesHoy().some(m => m.prog >= m.meta && !m.cob) ? 'block' : 'none'; }
+function abreMisiones() {
+  const ls = misionesHoy();
+  modal(`<h2>Misiones de hoy</h2><p class="cen">Se renuevan cada día. Sin prisa: lo que no haga no se pierde nada.</p>` +
+    ls.map((m, i) => `<div class="fila"><div class="t"><b>${m.txt}</b><span>${m.prog}/${m.meta} · 🪙 ${m.rec}</span><div class="barra"><i style="width:${m.prog / m.meta * 100}%"></i></div></div>
+      ${m.cob ? '<span>✓</span>' : `<button class="btn chico verde" data-a="m${i}" ${m.prog >= m.meta ? '' : 'disabled'}>Recoger</button>`}</div>`).join('') +
+    `<div class="cen" style="margin-top:12px"><button class="btn sec" data-a="x">Cerrar</button></div>`);
+  const mp = { x: cierra };
+  ls.forEach((m, i) => (mp['m' + i] = () => { if (m.prog >= m.meta && !m.cob) { m.cob = true; monedas(m.rec); Aud.moneda(); guarda(); puntoMisiones(); abreMisiones(); } }));
+  enlaza(mp);
+}
+
+// ---------- Regalo del día (se puede ignorar sin consecuencias) ----------
+function regaloDelDia() {
+  const h = hoy();
+  if (S.ultimoRegalo === h) return;
+  const ayer = new Date(Date.now() - 86400000), a = ayer.getFullYear() + '-' + String(ayer.getMonth() + 1).padStart(2, '0') + '-' + String(ayer.getDate()).padStart(2, '0');
+  const racha = S.ultimoRegalo === a ? Math.min(S.racha + 1, 7) : 1;
+  const premio = (30 + 10 * racha) * (esPlus() ? 2 : 1);
+  modal(`<h2>🌼 Regalo del día</h2><p class="cen">Un detalle para su jardín.</p><div class="mono" style="margin:14px 0"><span>🪙</span><span class="conf-n">+${premio}</span></div>
+    ${racha > 1 ? `<p class="cen">Lleva ${racha} días seguidos viniendo. ¡Qué bien!</p>` : ''}
+    <div class="cen" style="margin-top:10px"><button class="btn verde" data-a="ok">Recoger</button></div>`);
+  enlaza({ ok: () => { S.ultimoRegalo = h; S.racha = racha; monedas(premio); Aud.moneda(); cierra(); actualizaHUD(); } });
+}
+
+// ---------- Ajustes ----------
+function abreAjustes() {
+  const fila = (k, t, s) => `<div class="interr"><div><b>${t}</b><div style="font-size:12px;color:var(--tx2)">${s}</div></div><button class="sw ${S.ajustes[k] ? 'on' : ''}" data-a="s-${k}"></button></div>`;
+  modal(`<h2>Ajustes</h2>` + fila('sonido', 'Sonidos', 'Efectos suaves') + fila('musica', 'Música ambiente', 'Campanillas tranquilas') + fila('vibracion', 'Vibración', 'Al florecer y mover') +
+    fila('daltonico', 'Símbolos en las semillas', 'Ayuda si cuesta distinguir colores') +
+    `<div class="cen" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center">
+      <a href="politica_privacidad.html" target="_blank" style="color:var(--tx2)">Política de privacidad</a>
+      <button class="btn sec" data-a="reset">Borrar mi progreso</button>
+      <button class="btn" data-a="x">Listo</button><div style="font-size:11px;color:var(--tx2)">Ansiedad ${CFG.version}</div></div>`);
+  const mp = { x: cierra, reset: () => { modal(`<h2>¿Borrar todo?</h2><p class="cen">Se perderán niveles, monedas y jardín. No se puede deshacer.</p><div class="cen" style="display:flex;gap:10px;justify-content:center"><button class="btn chico" data-a="si">Sí, borrar</button><button class="btn sec" data-a="no">No</button></div>`); enlaza({ no: abreAjustes, si: () => { localStorage.removeItem(CLAVE); location.reload(); } }); } };
+  ['sonido', 'musica', 'vibracion', 'daltonico'].forEach(k => (mp['s-' + k] = () => { S.ajustes[k] = !S.ajustes[k]; guarda(); if (k === 'musica' || k === 'sonido') Aud.musica(S.ajustes.musica && S.ajustes.sonido); abreAjustes(); }));
+  enlaza(mp);
+}
+
+// ---------- Fin de nivel ----------
+function ganaNivel() {
+  const prm = T.prm, base = 20 + 6 * prm.colores, bono = T.usadosDeshacer === 0 ? 10 : 0;
+  let total = base + bono; if (esPlus()) total = Math.round(total * 1.3);
+  S.completados++; if (T.n >= S.nivel) S.nivel = T.n + 1;
+  const flor = { e: Math.floor(Math.random() * S.especies), c: Math.floor(Math.random() * COLORES.length), x: .04 + Math.random() * .92, y: Math.random() };
+  S.jardin.push(flor); if (S.jardin.length > 220) S.jardin.shift();
+  let nueva = null;
+  if (S.completados % 6 === 0 && S.especies < ESPECIES.length) { nueva = ESPECIES[S.especies]; S.especies++; }
+  S.intro = true; monedas(total); guarda();
+  mision('niveles', 1); if (T.usadosDeshacer === 0) mision('sinDeshacer', 1);
+  Aud.gana(); vibra([30, 50, 30, 50, 60]); confeti();
+  const permitirDoble = !esPlus();
+  modal(`<h2>¡Nivel ${T.n} completado!</h2><p class="cen">Su jardín tiene una flor más 🌸</p>
+    <div class="mono" style="margin:12px 0"><span>🪙</span><span class="conf-n">+${total}</span></div>
+    ${bono ? '<p class="cen" style="font-size:13px">Incluye +10 por no deshacer ningún paso</p>' : ''}
+    ${nueva ? `<div class="tarjeta destacada"><div class="ico">✨</div><div class="t"><b>Flor nueva: ${nueva.n}</b><div>Ya puede verla crecer en su jardín</div></div></div>` : ''}
+    <div class="cen" style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:8px">
+      <button class="btn" data-a="sig">Siguiente nivel</button>
+      ${permitirDoble ? `<button class="btn sec" data-a="doble">▶ Doblar monedas (+${total}) viendo un anuncio</button>` : ''}
+      <button class="btn sec" data-a="jar">Ver mi jardín</button></div>`, false);
+  const sigue = () => { cierra(); const n = S.nivel; const ir = () => { empiezaNivel(n); }; if (S.completados >= CFG.interDesde - 1 && S.completados % CFG.interCada === 0) Anuncios.intersticial(ir); else ir(); };
+  enlaza({
+    sig: sigue,
+    doble: () => { Anuncios.recompensa(() => { monedas(total); Aud.moneda(); toast('¡Monedas dobles! 🌼'); const b = $('#modal [data-a="doble"]'); if (b) b.remove(); }); },
+    jar: () => { cierra(); ir('jardin'); }
+  });
+  actualizaHUD();
+}
+
+// ---------- Jardín ----------
+const cj = $('#cj'), cjx = cj.getContext('2d');
+function ajustaJardin() { cj.width = Math.round(T.w * T.dpr); cj.height = Math.round(T.h * T.dpr); cjx.setTransform(T.dpr, 0, 0, T.dpr, 0, 0); }
+function dibujaJardin(t) {
+  const tema = TEMAS[S.tema] ? S.tema : 'amanecer';
+  dibujaFondo(cjx, T.w, T.h, tema, t);
+  dibujaEscena(cjx, T.w, T.h, S.jardin.slice(-80), t, tema, .36);
+}
+function abreJardin() {
+  ajustaJardin();
+  $('#j-info').textContent = `🌸 ${S.jardin.length} flores · ${S.especies}/${ESPECIES.length} especies`;
+  const cont = $('#jar-especies'); cont.innerHTML = '';
+  ESPECIES.forEach((e, i) => {
+    const d = document.createElement('div'); d.className = 'esp' + (i < S.especies ? '' : ' bloq');
+    d.innerHTML = '<canvas width="120" height="90"></canvas>' + (i < S.especies ? e.n : '???');
+    cont.appendChild(d); const g = d.firstChild.getContext('2d');
+    if (i < S.especies) dibujaFlor(g, 60, 46, 28, e.f, (i * 3) % 10, 0); else { g.fillStyle = 'rgba(0,0,0,.15)'; g.beginPath(); g.arc(60, 46, 22, 0, TAU); g.fill(); }
+  });
+}
+
+// ---------- Navegación ----------
+function ir(modo) {
+  T.modo = modo;
+  ['home', 'jardin'].forEach(p => $('#p-' + p).classList.toggle('on', p === modo));
+  $('#hud').classList.toggle('on', modo === 'juego');
+  if (modo === 'home') { $('#home-nivel').textContent = 'Nivel ' + S.nivel; puntoMisiones(); }
+  if (modo === 'jardin') abreJardin();
+  if (modo === 'juego') { if (!T.pots.length || T.n !== S.nivel || T.fin) empiezaNivel(S.nivel); else { layout(); actualizaHUD(); } }
+  Aud.musica(true);
+}
+function enlazaPantallas() {
+  $('#b-jugar').onclick = () => { Aud.init(); Aud.reanuda(); Aud.boton(); ir('juego'); };
+  $('#b-menu').onclick = () => { Aud.boton(); ir('home'); };
+  $('#h-jardin').onclick = () => { Aud.boton(); ir('jardin'); };
+  $('#j-volver').onclick = () => { Aud.boton(); ir('home'); };
+  $('#h-tienda').onclick = () => { Aud.boton(); abreTienda('ofertas'); };
+  $('#h-misiones').onclick = () => { Aud.boton(); abreMisiones(); };
+  $('#h-ajustes').onclick = () => { Aud.boton(); abreAjustes(); };
+  $('#monedas-pill').onclick = () => { Aud.boton(); abreTienda('monedas'); };
+  $('#monedas-pill').style.cursor = 'pointer'; $('#monedas-pill').style.pointerEvents = 'auto';
+  $('#b-deshacer').onclick = deshacer;
+  $('#b-pista').onclick = daPista;
+  $('#b-maceta').onclick = anadeMaceta;
+  $('#b-reiniciar').onclick = reiniciaNivel;
+}
+
+// =====================================================================
+//  ARRANQUE
+// =====================================================================
+function arranca() {
+  iniciaFondo(); enlazaPantallas(); ajusta(); ajustaJardin();
+  $('#monedas').textContent = fmt(S.monedas);
+  document.body.classList.toggle('oscuro', !!(TEMAS[S.tema] && TEMAS[S.tema].osc));
+  ir('home'); puntoMisiones();
+  requestAnimationFrame(frame);
+  setTimeout(regaloDelDia, 600);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) Aud.musica(false); else if (T.modo) Aud.musica(true); });
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+window.addEventListener('error', e => { try { console.log('ERR', e.message); } catch (x) { /* nada */ } });
+window.addEventListener('resize', ajustaJardin);
+arranca();
+
+</script></body></html>
